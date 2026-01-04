@@ -8,11 +8,9 @@ def main():
     This tool predicts the site of origin (SOO) for idiopathic Premature Ventricular Contractions (PVCs) 
     using 12-lead ECG features. It implements two distinct algorithms based on the following literature:
     
-    1. **Enriquez et al.** - *Contemporary Review* (2019) 
-    2. **Yamada et al.** - *J Cardiovasc Electrophysiol* (2019) 
+    1. Enriquez et al. - Contemporary Review (2019)
+    2. Yamada et al. - J Cardiovasc Electrophysiol (2019)
     """)
-
-    st.warning("Disclaimer: This tool is for educational and research purposes only. It is not a medical device and should not be used for clinical diagnosis.")
 
     # --- Sidebar: ECG Feature Inputs ---
     st.sidebar.header("ECG Features")
@@ -107,7 +105,6 @@ def main():
             transition_zone, v6_ratio, inferior_leads_pattern
         )
         st.success(f"Predicted Site: {result_enriquez}")
-        st.info("Logic based on Figure 3 of Enriquez et al. [cite: 177]")
 
     with col2:
         st.subheader("Algorithm 2: Yamada et al.")
@@ -118,7 +115,6 @@ def main():
             low_voltage_inferior, positive_concordance
         )
         st.success(f"Predicted Site: {result_yamada}")
-        st.info("Logic based on Figure 13 of Yamada et al. [cite: 1105]")
 
     # --- Explanations ---
     st.markdown("---")
@@ -148,7 +144,7 @@ def main():
 # --- Algorithm Logic Functions ---
 
 def solve_enriquez(axis, bbb, lead_I, aVL, transition, v6_ratio, inferior_pattern):
-    # Reference: Figure 3, Enriquez et al. [cite: 177]
+    # Logic derived from Enriquez et al.
     
     # 1. Inferior Axis (Positive II and III)
     if axis == "Inferior (Positive II & III)":
@@ -189,15 +185,11 @@ def solve_enriquez(axis, bbb, lead_I, aVL, transition, v6_ratio, inferior_patter
 
     # 3. Discordance
     else: # Discordant
-        # Note: The tool separates by II and III polarity. 
-        # Since we use a dropdown for "Discordant", we make a best guess or ask for clarification.
-        # Ideally, we would ask specifically about II vs III here. 
-        # For this implementation, we will list the discordance possibilities.
         return "Lateral TV/MB/Parahisian (Pos II/Neg III) OR Lateral MV/APM (Neg II/Pos III)"
 
 
 def solve_yamada(bbb, inf_pat, aVR, aVL, rvot_lvot, mdi, v6_r, trans, qrsd, axis, v6_rat, notch, v1_morph, low_volt, pos_conc):
-    # Reference: Figure 13 (A) and (B), Yamada et al. [cite: 1105]
+    # Logic derived from Yamada et al.
 
     # --- Tree A: LBBB ---
     if bbb == "LBBB":
@@ -215,7 +207,6 @@ def solve_yamada(bbb, inf_pat, aVR, aVL, rvot_lvot, mdi, v6_r, trans, qrsd, axis
                 return "PB, SB, Sept-PM, HB, NSV, RSV"
         else:
             # Split 3: QS in inferior leads, MDI > 0.55, polarity reversal V1-V3
-            # Simplified check using available inputs
             is_inf_qs = (inf_pat == "QS in all")
             if is_inf_qs and mdi > 0.55:
                  return "Crux"
@@ -241,7 +232,6 @@ def solve_yamada(bbb, inf_pat, aVR, aVL, rvot_lvot, mdi, v6_r, trans, qrsd, axis
                 else:
                     return "LPF"
             else: # R/S > 1
-                # Check Notching or Ratio (simplified logic based on tree)
                 if notch: # Late notching
                     return "Post-MA"
                 else:
